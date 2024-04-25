@@ -1,7 +1,7 @@
 **/obj/Debug/*
 **/bin/Debug/*
-HeqaGateway/obj/Debug/*
-HeqaGateway/bin/Debug/*
+HeqaGateway/obj/Debug/*/*
+HeqaGateway/bin/Debug/*/*
 
 
 # From .NET Core 3.0 you can use the command: `dotnet new gitignore` to generate a customizable .gitignore file
@@ -35,8 +35,8 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
-HeqaGateway/obj/*
-HeqaGateway/bin/*
+HeqaGateway/obj/*/*
+HeqaGateway/bin/*/*
 
 # Visual Studio 2015
 .vs/
