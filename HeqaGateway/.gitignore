@@ -29,8 +29,8 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
-obj/
-bin/
+HeqaGateway/obj/
+HeqaGateway/bin/
 
 # Visual Studio 2015
 .vs/
