@@ -37,6 +37,9 @@ msbuild.err
 msbuild.wrn
 HeqaGateway/obj/*/*
 HeqaGateway/bin/*/*
+**/obj/Debug/net8.0/
+**/bin/Debug/net8.0/
+
 
 # Visual Studio 2015
 .vs/
