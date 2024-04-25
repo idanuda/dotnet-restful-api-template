@@ -1,44 +1,107 @@
-var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// <snippet_all>
+using NSwag.AspNetCore;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<InterfaceConfigDB>(opt => opt.UseInMemoryDatabase("TodoList"));
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApiDocument(config =>
+{
+    config.DocumentName = "InterfaceConfigAPI";
+    config.Title = "InterfaceConfigAPI v1";
+    config.Version = "v1";
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseOpenApi();
+    app.UseSwaggerUi(config =>
+    {
+        config.DocumentTitle = "InterfaceConfigAPI";
+        config.Path = "/swagger";
+        config.DocumentPath = "/swagger/{documentName}/swagger.json";
+        config.DocExpansion = "list";
+    });
 }
 
-app.UseHttpsRedirection();
+// <snippet_group>
+RouteGroupBuilder todoItems = app.MapGroup("/interface-config");
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+todoItems.MapGet("/", GetAllTodos);
+todoItems.MapGet("/complete", GetCompleteTodos);
+todoItems.MapGet("/{id}", GetTodo);
+todoItems.MapPost("/", CreateTodo);
+todoItems.MapPut("/{id}", UpdateTodo);
+todoItems.MapDelete("/{id}", DeleteTodo);
+// </snippet_group>
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+// <snippet_handlers>
+// <snippet_getalltodos>
+static async Task<IResult> GetAllTodos(InterfaceConfigDB db)
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    return TypedResults.Ok(await db.Todos.Select(x => new InterfaceConfigDTO(x)).ToArrayAsync());
 }
+// </snippet_getalltodos>
+
+static async Task<IResult> GetCompleteTodos(InterfaceConfigDB db) {
+    return TypedResults.Ok(await db.Todos.Where(t => t.IsComplete).Select(x => new InterfaceConfigDTO(x)).ToListAsync());
+}
+
+static async Task<IResult> GetTodo(int id, InterfaceConfigDB db)
+{
+    return await db.Todos.FindAsync(id)
+        is InterfaceConfig todo
+            ? TypedResults.Ok(new InterfaceConfigDTO(todo))
+            : TypedResults.NotFound();
+}
+
+static async Task<IResult> CreateTodo(InterfaceConfigDTO todoItemDTO, InterfaceConfigDB db)
+{
+    var todoItem = new InterfaceConfig
+    {
+        IsComplete = todoItemDTO.IsComplete,
+        Name = todoItemDTO.Name
+    };
+
+    db.Todos.Add(todoItem);
+    await db.SaveChangesAsync();
+
+    todoItemDTO = new InterfaceConfigDTO(todoItem);
+
+    return TypedResults.Created($"/todoitems/{todoItem.Id}", todoItemDTO);
+}
+
+static async Task<IResult> UpdateTodo(int id, InterfaceConfigDTO todoItemDTO, InterfaceConfigDB db)
+{
+    var todo = await db.Todos.FindAsync(id);
+
+    if (todo is null) return TypedResults.NotFound();
+
+    todo.Name = todoItemDTO.Name;
+    todo.IsComplete = todoItemDTO.IsComplete;
+
+    await db.SaveChangesAsync();
+
+    return TypedResults.NoContent();
+}
+
+static async Task<IResult> DeleteTodo(int id, InterfaceConfigDB db)
+{
+    if (await db.Todos.FindAsync(id) is InterfaceConfig todo)
+    {
+        db.Todos.Remove(todo);
+        await db.SaveChangesAsync();
+        return TypedResults.NoContent();
+    }
+
+    return TypedResults.NotFound();
+}
+// <snippet_handlers>
+// </snippet_all>
