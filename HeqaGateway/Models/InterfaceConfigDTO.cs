@@ -1,3 +1,4 @@
+
 public class InterfaceConfigDTO
 {
     public int Id { get; set; }
