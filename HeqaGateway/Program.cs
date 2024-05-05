@@ -30,14 +30,14 @@ if (app.Environment.IsDevelopment())
 }
 
 // <snippet_group>
-RouteGroupBuilder todoItems = app.MapGroup("/interface-config");
+RouteGroupBuilder interfaceConfig = app.MapGroup("/interface-config");
 
-todoItems.MapGet("/", GetAllInterfaceConfigs);
-todoItems.MapGet("/with-one-ip", GetInterfaceConfigWithOneIP);
-todoItems.MapGet("/{id}", GetInterfaceConfig);
-todoItems.MapPost("/", CreateInterfaceConfig);
-todoItems.MapPut("/{id}", UpdateInterfaceConfig);
-todoItems.MapDelete("/{id}", DeleteInterfaceConfig);
+interfaceConfig.MapGet("/", GetAllInterfaceConfigs);
+interfaceConfig.MapGet("/with-one-ip", GetInterfaceConfigWithOneIP);
+interfaceConfig.MapGet("/{id}", GetInterfaceConfig);
+interfaceConfig.MapPost("/", CreateInterfaceConfig);
+interfaceConfig.MapPut("/{id}", UpdateInterfaceConfig);
+interfaceConfig.MapDelete("/{id}", DeleteInterfaceConfig);
 // </snippet_group>
 
 app.Run();
