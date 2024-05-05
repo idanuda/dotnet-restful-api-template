@@ -4,7 +4,7 @@ using NSwag.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<InterfaceConfigDB>(opt => opt.UseInMemoryDatabase("TodoList"));
+builder.Services.AddDbContext<InterfaceConfigDB>(opt => opt.UseInMemoryDatabase("Interface Config"));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -30,73 +30,73 @@ if (app.Environment.IsDevelopment())
 }
 
 // <snippet_group>
-RouteGroupBuilder todoItems = app.MapGroup("/interface-config");
+RouteGroupBuilder interfaceConfig = app.MapGroup("/interface-config");
 
-todoItems.MapGet("/", GetAllTodos);
-todoItems.MapGet("/complete", GetCompleteTodos);
-todoItems.MapGet("/{id}", GetTodo);
-todoItems.MapPost("/", CreateTodo);
-todoItems.MapPut("/{id}", UpdateTodo);
-todoItems.MapDelete("/{id}", DeleteTodo);
+interfaceConfig.MapGet("/", GetAllInterfaceConfigs);
+interfaceConfig.MapGet("/with-one-ip", GetInterfaceConfigWithOneIP);
+interfaceConfig.MapGet("/{id}", GetInterfaceConfig);
+interfaceConfig.MapPost("/", CreateInterfaceConfig);
+interfaceConfig.MapPut("/{id}", UpdateInterfaceConfig);
+interfaceConfig.MapDelete("/{id}", DeleteInterfaceConfig);
 // </snippet_group>
 
 app.Run();
 
 // <snippet_handlers>
-// <snippet_getalltodos>
-static async Task<IResult> GetAllTodos(InterfaceConfigDB db)
+// <snippet_getallinterfaceconfigs>
+static async Task<IResult> GetAllInterfaceConfigs(InterfaceConfigDB db)
 {
-    return TypedResults.Ok(await db.Todos.Select(x => new InterfaceConfigDTO(x)).ToArrayAsync());
+    return TypedResults.Ok(await db.interfaceConfig.Select(x => new InterfaceConfigDTO(x)).ToArrayAsync());
 }
-// </snippet_getalltodos>
+// </snippet_getallinterfaceconfig>
 
-static async Task<IResult> GetCompleteTodos(InterfaceConfigDB db) {
-    return TypedResults.Ok(await db.Todos.Where(t => t.IsComplete).Select(x => new InterfaceConfigDTO(x)).ToListAsync());
+static async Task<IResult> GetInterfaceConfigWithOneIP(InterfaceConfigDB db) {
+    return TypedResults.Ok(await db.interfaceConfig.Where(t => (t.Ips != null & t.Ips.GetLength(0) == 1)).Select(x => new InterfaceConfigDTO(x)).ToListAsync());
 }
 
-static async Task<IResult> GetTodo(int id, InterfaceConfigDB db)
+static async Task<IResult> GetInterfaceConfig(int id, InterfaceConfigDB db)
 {
-    return await db.Todos.FindAsync(id)
-        is InterfaceConfig todo
-            ? TypedResults.Ok(new InterfaceConfigDTO(todo))
+    return await db.interfaceConfig.FindAsync(id)
+        is InterfaceConfig interfaceConfig
+            ? TypedResults.Ok(new InterfaceConfigDTO(interfaceConfig))
             : TypedResults.NotFound();
 }
 
-static async Task<IResult> CreateTodo(InterfaceConfigDTO todoItemDTO, InterfaceConfigDB db)
+static async Task<IResult> CreateInterfaceConfig(InterfaceConfigDTO interfaceConfigDTO, InterfaceConfigDB db)
 {
-    var todoItem = new InterfaceConfig
+    var interfaceConfig = new InterfaceConfig
     {
-        IsComplete = todoItemDTO.IsComplete,
-        Name = todoItemDTO.Name
+        Ips = interfaceConfigDTO.Ips,
+        Description = interfaceConfigDTO.Description
     };
 
-    db.Todos.Add(todoItem);
+    db.interfaceConfig.Add(interfaceConfig);
     await db.SaveChangesAsync();
 
-    todoItemDTO = new InterfaceConfigDTO(todoItem);
+    interfaceConfigDTO = new InterfaceConfigDTO(interfaceConfig);
 
-    return TypedResults.Created($"/todoitems/{todoItem.Id}", todoItemDTO);
+    return TypedResults.Created($"/todoitems/{interfaceConfig.Id}", interfaceConfigDTO);
 }
 
-static async Task<IResult> UpdateTodo(int id, InterfaceConfigDTO todoItemDTO, InterfaceConfigDB db)
+static async Task<IResult> UpdateInterfaceConfig(int id, InterfaceConfigDTO interfaceConfigDTO, InterfaceConfigDB db)
 {
-    var todo = await db.Todos.FindAsync(id);
+    var interfaceConfig = await db.interfaceConfig.FindAsync(id);
 
-    if (todo is null) return TypedResults.NotFound();
+    if (interfaceConfig is null) return TypedResults.NotFound();
 
-    todo.Name = todoItemDTO.Name;
-    todo.IsComplete = todoItemDTO.IsComplete;
+    interfaceConfig.Ips = interfaceConfigDTO.Ips;
+    interfaceConfig.Description = interfaceConfigDTO.Description;
 
     await db.SaveChangesAsync();
 
     return TypedResults.NoContent();
 }
 
-static async Task<IResult> DeleteTodo(int id, InterfaceConfigDB db)
+static async Task<IResult> DeleteInterfaceConfig(int id, InterfaceConfigDB db)
 {
-    if (await db.Todos.FindAsync(id) is InterfaceConfig todo)
+    if (await db.interfaceConfig.FindAsync(id) is InterfaceConfig interfaceConfig)
     {
-        db.Todos.Remove(todo);
+        db.interfaceConfig.Remove(interfaceConfig);
         await db.SaveChangesAsync();
         return TypedResults.NoContent();
     }
