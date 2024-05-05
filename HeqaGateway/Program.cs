@@ -46,17 +46,17 @@ app.Run();
 // <snippet_getallinterfaceconfigs>
 static async Task<IResult> GetAllInterfaceConfigs(InterfaceConfigDB db)
 {
-    return TypedResults.Ok(await db.Todos.Select(x => new InterfaceConfigDTO(x)).ToArrayAsync());
+    return TypedResults.Ok(await db.interfaceConfig.Select(x => new InterfaceConfigDTO(x)).ToArrayAsync());
 }
 // </snippet_getallinterfaceconfig>
 
 static async Task<IResult> GetInterfaceConfigWithOneIP(InterfaceConfigDB db) {
-    return TypedResults.Ok(await db.Todos.Where(t => (t.Ips != null & t.Ips.GetLength(0) == 1)).Select(x => new InterfaceConfigDTO(x)).ToListAsync());
+    return TypedResults.Ok(await db.interfaceConfig.Where(t => (t.Ips != null & t.Ips.GetLength(0) == 1)).Select(x => new InterfaceConfigDTO(x)).ToListAsync());
 }
 
 static async Task<IResult> GetInterfaceConfig(int id, InterfaceConfigDB db)
 {
-    return await db.Todos.FindAsync(id)
+    return await db.interfaceConfig.FindAsync(id)
         is InterfaceConfig interfaceConfig
             ? TypedResults.Ok(new InterfaceConfigDTO(interfaceConfig))
             : TypedResults.NotFound();
@@ -70,7 +70,7 @@ static async Task<IResult> CreateInterfaceConfig(InterfaceConfigDTO interfaceCon
         Description = interfaceConfigDTO.Description
     };
 
-    db.Todos.Add(interfaceConfig);
+    db.interfaceConfig.Add(interfaceConfig);
     await db.SaveChangesAsync();
 
     interfaceConfigDTO = new InterfaceConfigDTO(interfaceConfig);
@@ -80,7 +80,7 @@ static async Task<IResult> CreateInterfaceConfig(InterfaceConfigDTO interfaceCon
 
 static async Task<IResult> UpdateInterfaceConfig(int id, InterfaceConfigDTO interfaceConfigDTO, InterfaceConfigDB db)
 {
-    var interfaceConfig = await db.Todos.FindAsync(id);
+    var interfaceConfig = await db.interfaceConfig.FindAsync(id);
 
     if (interfaceConfig is null) return TypedResults.NotFound();
 
@@ -94,9 +94,9 @@ static async Task<IResult> UpdateInterfaceConfig(int id, InterfaceConfigDTO inte
 
 static async Task<IResult> DeleteInterfaceConfig(int id, InterfaceConfigDB db)
 {
-    if (await db.Todos.FindAsync(id) is InterfaceConfig interfaceConfig)
+    if (await db.interfaceConfig.FindAsync(id) is InterfaceConfig interfaceConfig)
     {
-        db.Todos.Remove(interfaceConfig);
+        db.interfaceConfig.Remove(interfaceConfig);
         await db.SaveChangesAsync();
         return TypedResults.NoContent();
     }
