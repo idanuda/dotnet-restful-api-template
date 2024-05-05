@@ -2,10 +2,10 @@
 public class InterfaceConfigDTO
 {
     public int Id { get; set; }
-    public string? Name { get; set; }
-    public bool IsComplete { get; set; }
+    public string[] ? Ips { get; set; }
+    public string? Description { get; set; }
 
     public InterfaceConfigDTO() { }
-    public InterfaceConfigDTO(InterfaceConfig todoItem) =>
-    (Id, Name, IsComplete) = (todoItem.Id, todoItem.Name, todoItem.IsComplete);
+    public InterfaceConfigDTO(InterfaceConfig interfaceConfig) =>
+    (Id, Ips, Description) = (interfaceConfig.Id, interfaceConfig.Ips, interfaceConfig.Description);
 }
