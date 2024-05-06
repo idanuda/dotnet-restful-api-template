@@ -16,6 +16,7 @@ RUN dotnet build "HeqaGateway.csproj" -c $configuration -o /app/build
 
 FROM build AS publish
 ARG configuration=Release
+
 RUN dotnet publish "HeqaGateway.csproj" -c $configuration -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
